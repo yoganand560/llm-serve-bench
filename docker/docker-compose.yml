@@ -1,0 +1,26 @@
+# NOT built or tested on this Mac. Docker is not installed here.
+# Only the gateway is containerised: llama-server uses Metal and must stay native.
+services:
+  gateway:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.gateway
+    ports:
+      - "8000:8000"
+    environment:
+      LLM_SERVE_CONFIG: /app/configs/default.yaml
+    volumes:
+      - ../configs:/app/configs:ro
+
+  # Future NVIDIA host only. Do not use here: no GPU, no vLLM implementation.
+  # vllm:
+  #   profiles: ["nvidia"]
+  #   image: vllm/vllm-openai:latest
+  #   command: ["--model", "Qwen/Qwen2.5-1.5B-Instruct", "--dtype", "half"]
+  #   ipc: host
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             capabilities: [gpu]

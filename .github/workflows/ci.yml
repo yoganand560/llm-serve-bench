@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install package and dev tools
+        run: python -m pip install -e '.[dev]'
+      - name: Lint
+        run: ruff check src tests benchmarks scripts
+      - name: Unit tests
+        run: pytest
+
+  latency-regression:
+    runs-on: ubuntu-latest
+    # No GPU, model or server here: the gate reads saved result JSON only.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install package
+        run: python -m pip install -e .
+      - name: Run saved-results regression check
+        if: ${{ hashFiles('results/regression_baseline.json', 'results/regression_latest.json') != '' }}
+        run: >-
+          python scripts/check_regression.py
+          --baseline results/regression_baseline.json
+          --fresh results/regression_latest.json
+      - name: Report skipped gate
+        if: ${{ hashFiles('results/regression_baseline.json', 'results/regression_latest.json') == '' }}
+        run: >-
+          echo "::notice::Latency gate skipped: no real saved result JSONs yet.
+          This runner has no GPU; placeholders are never used as a baseline."

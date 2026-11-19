@@ -1,0 +1,33 @@
+# EXAMPLE ONLY - not runnable on this Mac.
+# The vllm adapter is a documented stub that raises NotImplementedError.
+# See docs/GPU_PENDING.md for the NVIDIA-host procedure.
+backend:
+  name: vllm
+  model: Qwen/Qwen2.5-1.5B-Instruct
+  quantization: N/A
+  host: 127.0.0.1
+  port: 8000
+
+gateway:
+  host: 127.0.0.1
+  port: 8001
+  request_timeout_s: 60.0
+  max_new_tokens_default: 64
+  max_new_tokens_limit: 512
+
+benchmark:
+  concurrency: [1, 4, 8, 16, 32]
+  repeats: 3
+  warmup_requests: 2
+  seed: 42
+  max_new_tokens: 64
+  requests_per_run: 32
+  prompt_set_path: benchmarks/prompts.json
+
+regression:
+  baseline_path: benchmarks/regression_baseline.json
+  p95_threshold_ratio: 1.2
+
+tracking:
+  tracking_uri: file:./mlruns
+  experiment_name: llm-serve-bench

@@ -1,0 +1,34 @@
+# Qwen2.5-1.5B-Instruct in F16 GGUF (~3.1 GB). Not downloaded yet.
+backend:
+  name: llama_cpp
+  model: Qwen/Qwen2.5-1.5B-Instruct
+  model_path: models/Qwen2.5-1.5B-Instruct-F16.gguf
+  quantization: F16
+  host: 127.0.0.1
+  port: 8080
+  n_gpu_layers: -1
+  ctx_size: 2048
+
+gateway:
+  host: 127.0.0.1
+  port: 8000
+  request_timeout_s: 60.0
+  max_new_tokens_default: 64
+  max_new_tokens_limit: 512
+
+benchmark:
+  concurrency: [1, 4, 8, 16, 32]
+  repeats: 3
+  warmup_requests: 2
+  seed: 42
+  max_new_tokens: 64
+  requests_per_run: 32
+  prompt_set_path: benchmarks/prompts.json
+
+regression:
+  baseline_path: benchmarks/regression_baseline.json
+  p95_threshold_ratio: 1.2
+
+tracking:
+  tracking_uri: file:./mlruns
+  experiment_name: llm-serve-bench

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "q01",
+    "question": "What is the capital of France? Answer with one word.",
+    "expected_keywords": ["Paris"]
+  },
+  {
+    "id": "q02",
+    "question": "What is 7 times 8? Answer with a number.",
+    "expected_keywords": ["56"]
+  },
+  {
+    "id": "q03",
+    "question": "Which planet is known as the Red Planet? Answer with one word.",
+    "expected_keywords": ["Mars"]
+  },
+  {
+    "id": "q04",
+    "question": "What data structure follows last-in, first-out ordering? Answer with one word.",
+    "expected_keywords": ["stack"]
+  },
+  {
+    "id": "q05",
+    "question": "What is the time complexity of binary search on a sorted array? Use big-O notation.",
+    "expected_keywords": ["O(log n)", "log"]
+  },
+  {
+    "id": "q06",
+    "question": "Which language is used to query relational databases? Answer with one word.",
+    "expected_keywords": ["SQL"]
+  },
+  {
+    "id": "q07",
+    "question": "What is the chemical symbol for gold? Answer with one or two letters.",
+    "expected_keywords": ["Au"]
+  },
+  {
+    "id": "q08",
+    "question": "In Python, which keyword starts a conditional branch? Answer with one word.",
+    "expected_keywords": ["if"]
+  },
+  {
+    "id": "q09",
+    "question": "What is the largest mammal on Earth? Answer with one word.",
+    "expected_keywords": ["blue whale", "whale"]
+  },
+  {
+    "id": "q10",
+    "question": "What does HTTP stand for? Give the full expansion.",
+    "expected_keywords": ["Hypertext Transfer Protocol"]
+  }
+]

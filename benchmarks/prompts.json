@@ -1,0 +1,10 @@
+[
+  "Explain the difference between a process and a thread in one sentence.",
+  "What is the time complexity of binary search?",
+  "Name two advantages of batching requests to an LLM server.",
+  "Write a short Python function that reverses a string.",
+  "Why is p95 latency more useful than mean latency for user-facing APIs?",
+  "What does a GPU memory allocator do?",
+  "Summarise the purpose of a load balancer in three words.",
+  "How would you measure time to first token in a streaming API?"
+]

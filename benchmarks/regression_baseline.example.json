@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "PLACEHOLDER": "NOT a measured baseline. Every metric is null. Rename to regression_baseline.json only after filling it from a real results/*.json run.",
+  "metadata": {
+    "generated_at_utc": "PENDING",
+    "backend": "PENDING",
+    "quantization": "PENDING",
+    "model": "PENDING"
+  },
+  "aggregates": {
+    "concurrency_1": {"e2e_p95_ms": {"mean": null, "spread": null, "samples": 0, "unit": "ms"}},
+    "concurrency_4": {"e2e_p95_ms": {"mean": null, "spread": null, "samples": 0, "unit": "ms"}},
+    "concurrency_8": {"e2e_p95_ms": {"mean": null, "spread": null, "samples": 0, "unit": "ms"}},
+    "concurrency_16": {"e2e_p95_ms": {"mean": null, "spread": null, "samples": 0, "unit": "ms"}},
+    "concurrency_32": {"e2e_p95_ms": {"mean": null, "spread": null, "samples": 0, "unit": "ms"}}
+  }
+}

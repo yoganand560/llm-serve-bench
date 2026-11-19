@@ -1,0 +1,27 @@
+# Python / tooling
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local MLflow file store (canonical artifacts are saved in results/)
+mlruns/
+
+# Downloaded model files
+models/
+*.gguf
+
+# Generated profiler traces are not source; pstats summaries go in docs/
+*.prof
+
+# Local-only config overrides and the real regression baseline once generated
+configs/*.local.yaml
+benchmarks/regression_baseline.json
+
+# OS
+.DS_Store

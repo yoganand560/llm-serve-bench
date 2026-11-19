@@ -1,0 +1,1 @@
+"""Backend-agnostic FastAPI gateway."""
