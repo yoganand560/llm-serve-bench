@@ -1,109 +1,307 @@
-# llm-serve-bench
+# LLM Serve Bench 🚀
+### LLM Inference Serving & Performance Benchmarking Platform
 
-**A Mac-first, production-style LLM serving and benchmarking platform — built to measure the full serving path, gateway included.**
+A modular framework for exploring, serving, and benchmarking Large Language Model (LLM) inference workloads. Built with Python and FastAPI, the project provides a configurable serving architecture and benchmarking pipeline designed to evaluate latency, throughput, concurrency, and memory consumption across inference backends.
 
-`llm-serve-bench` puts a FastAPI gateway in front of swappable inference backends and drives that gateway with an async benchmark harness, so every latency and throughput number reflects the real request path — not just the model.
-
----
-
-## Why this project exists
-
-Most "LLM benchmark" repos measure a model in isolation. Real serving includes the gateway: validation, timeouts, error mapping, metrics, and streaming overhead. This project measures **end-to-end**, with a few deliberate design choices:
-
-- **Pluggable backends** behind one interface — swap llama.cpp for vLLM without touching the harness.
-- **Gateway-driven benchmarking** — gateway overhead is *inside* the measurement, not hidden.
-- **Mock backend** — the gateway and tests run with zero model downloads.
-- **Honest results policy** — a mock run validates the harness only; it is never reported as model performance.
+The project focuses on understanding the systems engineering challenges involved in deploying and optimizing LLM inference workloads.
 
 ---
 
-## Architecture
+## 🎯 Project Overview
 
-| Layer | Responsibility |
+Deploying an LLM involves more than loading a model and generating text. An efficient inference system must handle concurrent requests, minimize response latency, manage memory resources, and maintain consistent performance under different workloads.
+
+**LLM Serve Bench** explores these challenges through a modular inference-serving architecture and a configurable benchmarking framework.
+
+The platform is designed to:
+
+- Provide a centralized FastAPI inference gateway.
+- Support interchangeable model-serving backends.
+- Handle request validation and streaming-oriented responses.
+- Benchmark inference workloads under different concurrency levels.
+- Measure latency, throughput, and memory consumption.
+- Track experiments and benchmark metadata using MLflow.
+- Support benchmark-result comparison and regression analysis.
+
+> **Project status:** Prototype. The architecture and benchmarking components are under development and require further execution and validation with real LLM workloads.
+
+---
+
+## 🏗️ System Architecture
+
+```text
+                 Client / Benchmark Runner
+                           |
+                           v
+                  FastAPI Gateway
+                           |
+                 Request Validation
+                    (Pydantic)
+                           |
+                 Request Management
+                           |
+                  Backend Interface
+                           |
+          +----------------+----------------+
+          |                |                |
+          v                v                v
+      llama.cpp           vLLM          Mock Backend
+      Backend           Adapter          Backend
+          |                |                |
+          v                v                v
+      Local LLM       NVIDIA GPU       Test Responses
+      Inference       (Future)
+          |
+          v
+    Generated Responses
+          |
+          v
+   Performance Monitoring
+          |
+     +----+---------+
+     |              |
+     v              v
+ Benchmark       MLflow
+ Results         Tracking
+     |
+     v
+ Performance Analysis
+```
+
+### Architecture Components
+
+| Component | Description |
 |---|---|
-| **FastAPI gateway** | Pydantic validation, timeouts, error mapping, `/metrics` |
-| **`ServeBackend` interface** | One contract, three implementations (real / stub / mock) |
-| **Benchmark harness** | Async load generation, metric computation, run orchestration |
-| **Tracking** | MLflow logging per run |
-| **Quality** | Fixed QA set for output sanity checks |
-| **CI** | ruff + pytest on push; CPU-only latency-regression gate |
-
-**Config-driven:** `configs/default.yaml` selects the mock backend (exercise the gateway before any download); `configs/llama_cpp_*.yaml` select the real Metal backend.
+| FastAPI Gateway | Centralized API layer for inference requests |
+| Pydantic | Request and response validation |
+| Backend Interface | Modular abstraction for inference engines |
+| llama.cpp | Intended local LLM inference integration |
+| vLLM | Planned NVIDIA GPU serving integration |
+| Mock Backend | Deterministic backend for testing |
+| Benchmark Engine | Configurable workload generation and performance measurement |
+| MLflow | Experiment tracking and benchmark metadata |
+| Regression Checks | Comparison of saved benchmark results |
 
 ---
 
-## Environment
+## ⚙️ Technology Stack
 
-Designed and tested on the following hardware:
-
-| Check | Result |
+| Category | Technologies |
 |---|---|
-| Architecture | `arm64` |
-| Chip | Apple M2 — 8 cores (4P + 4E) |
-| Unified memory | 8 GB |
-| macOS | 27.2.0 |
-| Python (venv) | 3.13 (`/opt/homebrew/bin/python3.13`) |
-| `nvidia-smi` / `nvcc` | not available |
-| Docker | not installed |
-| `llama-server` / `cmake` | not installed |
-
-These constraints shape the design: **no NVIDIA GPU** (vLLM ships as a documented stub + a future rented-GPU path), **8 GB unified memory** (high-concurrency runs may OOM — a real OOM is recorded as a failure, not hidden), and **no Metal inside Docker** (`llama-server` runs natively; only the gateway is containerized).
+| Programming Language | Python |
+| API Framework | FastAPI |
+| Data Validation | Pydantic |
+| Model Serving | llama.cpp |
+| GPU Serving | vLLM (planned integration) |
+| Experiment Tracking | MLflow |
+| Benchmarking | Python-based benchmark harness |
+| Testing | pytest |
+| Configuration | YAML / JSON |
+| Development | Git, GitHub |
 
 ---
 
-## Quickstart
+## 📊 Performance Metrics
+
+The benchmarking framework is designed to evaluate the following metrics:
+
+### 1. Time to First Token (TTFT)
+Measures the time between submitting a prompt and receiving the first generated token.
+
+### 2. End-to-End Latency
+Measures the total time required to complete an inference request.
+
+### 3. Token Throughput
+Measures the number of generated tokens per second.
+
+### 4. Request Throughput
+Measures the number of completed inference requests per second.
+
+### 5. P50 and P95 Latency
+Provides latency distribution measurements to understand typical and slower requests.
+
+### 6. Memory Consumption
+Tracks serving-process memory usage during inference workloads.
+
+---
+
+## 📁 Project Structure
+
+```text
+llm-serve-bench/
+│
+├── .github/
+│   └── workflows/
+│
+├── benchmarks/
+│
+├── configs/
+│
+├── docker/
+│
+├── docs/
+│
+├── results/
+│
+├── scripts/
+│
+├── src/
+│   └── llm_serve_bench/
+│       ├── backends/
+│       ├── gateway/
+│       ├── bench/
+│       ├── tracking/
+│       └── quality/
+│
+├── tests/
+│
+├── Makefile
+├── pyproject.toml
+└── README.md
+```
+
+---
+
+## 💻 Installation
+
+### Prerequisites
+
+- Python 3.10+
+- Git
+- pip
+- macOS or Linux
+- Additional model-serving dependencies depending on the selected backend
+
+### 1. Clone the repository
 
 ```bash
-# 1. Create and activate a Python 3.13 venv
-python3.13 -m venv .venv
+git clone https://github.com/yoganand560/llm-serve-bench.git
+
+cd llm-serve-bench
+```
+
+### 2. Create a virtual environment
+
+```bash
+python3 -m venv .venv
+
 source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+Use the dependencies declared in the project configuration:
+
+```bash
 pip install -e .
+```
 
-# 2. List available commands
+### 4. Inspect available commands
+
+```bash
 make help
+```
 
-# 3. Exercise the gateway with the mock backend (no model download)
-make run CONFIG=configs/default.yaml
+Follow the available Makefile targets and project configuration to start the gateway and benchmark workflows.
 
-# 4. Run a real benchmark on llama.cpp / Metal
-make run CONFIG=configs/llama_cpp_q4.yaml
-Repository structure
-text
-llm-serve-bench/
-├── .github/workflows/ci.yml
-├── configs/            # backend, model, seed, concurrency, thresholds
-├── docker/             # gateway-only Dockerfile + compose
-├── docs/               # methodology, profiling analysis, GPU run instructions
-├── benchmarks/         # benchmark CLI, fixed prompt set, regression baseline template
-├── results/            # raw JSON + charts from real runs
-├── scripts/            # regression check, plotting, profiling, quality check
-├── src/llm_serve_bench/
-│   ├── backends/       # ServeBackend ABC + llama.cpp / vLLM stub / mock adapters
-│   ├── gateway/        # FastAPI app, schemas, metrics, errors
-│   ├── bench/          # load generator, metric computation, run orchestration
-│   ├── tracking/       # MLflow logging
-│   └── quality/        # fixed QA set
-└── tests/              # config, gateway, regression, metrics, backends
-Tech stack
-Serving: FastAPI, Uvicorn, llama.cpp (llama-server, Metal)
+---
 
-Benchmarking: async load generator, fixed prompt set, concurrency 1–32, three repeats
+## 🧪 Benchmarking Methodology
 
-Tracking: MLflow
+The benchmarking workflow is designed around configurable workloads.
 
-Quality: fixed QA set
+A typical evaluation process involves:
 
-Tooling: Python 3.13, ruff, pytest, Makefile, Docker, GitHub Actions
+1. Configure the selected inference backend.
+2. Select the model and generation parameters.
+3. Configure the benchmark prompt dataset.
+4. Define the request concurrency level.
+5. Execute inference requests through the gateway.
+6. Capture response latency and throughput metrics.
+7. Store benchmark results.
+8. Analyze performance across configurations.
 
-Roadmap
-☑ Pluggable backend interface (real / stub / mock)
-☑ FastAPI gateway with validation, timeouts, error mapping, /metrics
-☑ Async benchmarking harness and metric computation
-☑ MLflow tracking and fixed QA set
-☑ CI: ruff + pytest + CPU-only latency-regression gate
-☑ Gateway-only Dockerfile and compose
-□ First real llama.cpp / Metal benchmark on the M2 → commit JSON to results/
-□ Quantization comparison (F16 / Q8_0 / Q4_K_M)
-□ vLLM run on a rented NVIDIA GPU per docs/GPU_PENDING.md
-□ Generate charts from real result JSON
+### Example Evaluation Scenarios
 
+| Scenario | Objective |
+|---|---|
+| Single-request inference | Establish baseline latency |
+| Concurrent requests | Evaluate performance under parallel workloads |
+| Increasing concurrency | Analyze throughput and latency trade-offs |
+| Backend comparison | Compare serving implementations |
+| Memory profiling | Understand resource consumption |
+
+Actual measurements must be generated before publishing performance comparisons.
+
+---
+
+## 📈 Benchmark Results
+
+Real model benchmark results have not yet been validated.
+
+The following table is the planned reporting format:
+
+| Metric | Result |
+|---|---|
+| TTFT (p50) | Pending |
+| End-to-End Latency (p95) | Pending |
+| Token Throughput | Pending |
+| Request Throughput | Pending |
+| Peak Memory Usage | Pending |
+
+Results will be added after executing real inference workloads.
+
+---
+
+## 🔬 Engineering Focus
+
+This project explores several important areas of LLM infrastructure engineering:
+
+- Modular inference-serving architecture.
+- API-based model serving.
+- Concurrent request processing.
+- Latency and throughput measurement.
+- Memory-efficiency analysis.
+- Experiment tracking and reproducibility.
+- Benchmark regression detection.
+- Local inference on Apple Silicon.
+
+---
+
+## 🚧 Current Limitations
+
+- Real llama.cpp inference benchmarks have not yet been validated.
+- The vLLM backend is currently a planned integration / adapter stub.
+- Benchmark performance results are not yet available.
+- Docker deployment requires validation.
+- MLflow experiment execution requires validation.
+
+---
+
+## 🛣️ Future Improvements
+
+- Complete and validate llama.cpp integration with Apple Metal.
+- Implement a functional vLLM serving backend.
+- Add dynamic batching and request scheduling.
+- Introduce GPU and memory profiling.
+- Generate automated benchmark visualizations.
+- Add reproducible performance comparisons.
+- Expand CI testing and Docker deployment.
+- Investigate inference optimization techniques such as quantization and KV-cache management.
+
+---
+
+## 👨‍💻 Author
+
+**Yoganand Gajanan Patgar**
+
+Machine Learning Engineer | LLM Systems | AI Infrastructure
+
+- GitHub: https://github.com/yoganand560
+- LinkedIn: https://www.linkedin.com/in/yoganand-/
+
+---
+
+## ⭐ Project Goal
+
+The goal of LLM Serve Bench is to explore the engineering principles behind efficient LLM inference serving and develop practical experience with model-serving infrastructure, performance benchmarking, and scalable AI systems.
